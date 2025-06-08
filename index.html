@@ -3,1001 +3,1080 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Game Collection</title>
+  <title>Lucky Number Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
   <style>
-    /* Your existing CSS styles */
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to bottom, #1e1e1e, #3a3a3a);
-      color: white;
-      text-align: center;
+    :root {
+      --primary: #6c5ce7;
+      --primary-light: #a29bfe;
+      --secondary: #00b894;
+      --danger: #d63031;
+      --warning: #fdcb6e;
+      --dark: #2d3436;
+      --light: #f5f6fa;
+    }
+    
+    * {
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #1e1e1e, #3a3a3a);
+      color: var(--light);
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-    }
-    .container {
-      background: rgba(0, 0, 0, 0.7);
       padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     }
-    button {
-      background: #444;
+    
+    .game-container {
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      width: 100%;
+      max-width: 500px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .header {
+      background: linear-gradient(to right, var(--primary), var(--primary-light));
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+    
+    .header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: white;
+    }
+    
+    .balance-display {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .content {
+      padding: 20px;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+    
+    /* Button styles */
+    .btn {
+      background: var(--primary);
       color: white;
       border: none;
-      padding: 10px 20px;
-      margin: 5px;
-      border-radius: 5px;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
       cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+      margin: 5px 0;
     }
-    button:hover {
-      background: #666;
+    
+    .btn:hover {
+      background: var(--primary-light);
+      transform: translateY(-2px);
     }
-    .hidden {
-      display: none;
+    
+    .btn:active {
+      transform: translateY(0);
     }
-    input {
-      padding: 10px;
-      margin: 5px;
-      border-radius: 5px;
-      border: none;
+    
+    .btn-secondary {
+      background: var(--dark);
     }
-    .bet-buttons {
+    
+    .btn-success {
+      background: var(--secondary);
+    }
+    
+    .btn-danger {
+      background: var(--danger);
+    }
+    
+    /* Game screen styles */
+    .current-number {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+      padding: 20px;
+      margin: 15px 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .current-number-label {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+    
+    .current-number-value {
+      font-size: 48px;
+      font-weight: 700;
+      margin-top: 5px;
+      transition: all 0.1s;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .result-text {
+      font-size: 16px;
+      margin-top: 10px;
+      font-weight: 600;
+      min-height: 24px;
+    }
+    
+    .win-text {
+      color: var(--secondary);
+    }
+    
+    .lose-text {
+      color: var(--danger);
+    }
+    
+    .spinning {
+      animation: spin 0.5s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.1); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+    
+    .bet-options {
+      display: flex;
+      gap: 10px;
+      margin: 15px 0;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .bet-option {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
       display: flex;
       justify-content: center;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    
+    .bet-option:hover {
+      background: var(--primary-light);
+      transform: scale(1.1);
+    }
+    
+    .bet-option.active {
+      background: var(--primary);
+      transform: scale(1.1);
+      box-shadow: 0 0 0 3px white;
+    }
+    
+    .guess-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 15px 0;
+    }
+    
+    .guess-option {
+      padding: 15px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .guess-option:hover {
+      background: var(--primary);
+    }
+    
+    .equal-guess-container {
+      margin: 15px 0;
+    }
+    
+    .equal-guess-container input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      margin-bottom: 10px;
+    }
+    
+    /* Menu screen styles */
+    .menu-options {
+      display: flex;
+      flex-direction: column;
       gap: 10px;
       margin-top: 20px;
     }
-    .popup {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0, 0, 0, 0.9);
-      padding: 20px;
+    
+    .daily-bonus {
+      background: linear-gradient(to right, var(--warning), #e17055);
+      color: var(--dark);
+      padding: 15px;
       border-radius: 10px;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-      z-index: 1000;
+      margin: 20px 0;
+      text-align: center;
     }
-    .popup p {
-      margin: 0;
+    
+    .streak-display {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      margin-top: 10px;
     }
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      z-index: 999;
-    }
-    .race-track {
-      position: relative;
-      width: 100%;
-      height: 200px;
-      margin-top: 20px;
-      background: #333;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    .marble {
-      position: absolute;
+    
+    .streak-day {
       width: 30px;
       height: 30px;
       border-radius: 50%;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-weight: bold;
-      color: white;
-      transition: left 0.1s linear;
+      font-weight: 600;
+      background: rgba(0, 0, 0, 0.2);
     }
-    .marble.red {
-      background: red;
-      top: 20px;
+    
+    .streak-day.active {
+      background: var(--dark);
+      color: var(--warning);
+      box-shadow: 0 0 0 2px var(--warning);
     }
-    .marble.blue {
-      background: blue;
-      top: 60px;
-    }
-    .marble.yellow {
-      background: yellow;
-      top: 100px;
-    }
-    .marble.green {
-      background: green;
-      top: 140px;
-    }
-    .finish-line {
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 5px;
-      height: 100%;
-      background: white;
-    }
-    .marble-selection {
+    
+    /* Balance screen styles */
+    .balance-form {
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       gap: 10px;
-      margin-top: 20px;
     }
-    .marble-selection button {
-      background: #444;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .marble-selection button.selected {
-      background: #666;
-    }
-    .cups {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin-top: 20px;
-    }
-    .cup {
-      width: 100px;
-      height: 150px;
-      background: linear-gradient(to bottom, #8B4513, #A0522D);
-      border: 5px solid #654321;
-      border-radius: 10px 10px 50px 50px;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-    }
-    .marble-ball {
-      width: 20px;
-      height: 20px;
-      background: radial-gradient(circle, red, darkred);
-      border-radius: 50%;
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
-    }
-    .slot-machine {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 20px;
-    }
-    .reel {
-      width: 80px;
-      height: 80px;
-      background: #444;
-      border: 2px solid #666;
-      border-radius: 10px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 24px;
-      font-weight: bold;
-      overflow: hidden;
-      position: relative;
-    }
-    .reel span {
-      position: absolute;
+    
+    .balance-form input {
       width: 100%;
-      height: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+    
+    .tab-buttons {
       display: flex;
-      justify-content: center;
-      align-items: center;
-      transition: top 0.5s ease-in-out;
+      margin-bottom: 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .tab-button {
+      flex: 1;
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+    }
+    
+    .tab-button.active {
+      border-bottom: 3px solid var(--primary);
+      color: var(--primary);
+      font-weight: 600;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    /* Wager history styles */
+    .wager-history {
+      max-height: 200px;
+      overflow-y: auto;
+      margin: 15px 0;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+      padding: 10px;
+    }
+    
+    .wager-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .wager-item:last-child {
+      border-bottom: none;
+    }
+    
+    .wager-amount {
+      font-weight: 600;
+    }
+    
+    .wager-positive {
+      color: var(--secondary);
+    }
+    
+    .wager-negative {
+      color: var(--danger);
+    }
+    
+    /* Confetti effect */
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: #f00;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 100;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 500px) {
+      .guess-options {
+        grid-template-columns: 1fr;
+      }
+      
+      .current-number-value {
+        font-size: 36px;
+      }
+      
+      .header h1 {
+        font-size: 20px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <!-- Main Menu -->
-    <div id="main-menu">
-      <h1>Main Menu</h1>
-      <button onclick="showScreen('balance')">Balance</button>
-      <button onclick="showScreen('guess')">Guess the Cup</button>
-      <button onclick="showScreen('slot')">Slot Machine</button>
-      <button onclick="showScreen('number-guess')">Number Guessing</button>
-      <button onclick="showScreen('bonus')">Bonus</button>
-      <button onclick="showScreen('marble-racing')">Marble Racing</button>
-      <button onclick="exitGame()">Exit</button>
+  <!-- Main Menu Screen -->
+  <div class="game-container" id="main-menu">
+    <div class="header">
+      <h1>LUCKY NUMBER GAME</h1>
+      <div class="balance-display" id="main-balance">10.00 🪙</div>
     </div>
-
-    <!-- Balance Screen -->
-    <div id="balance-screen" class="hidden">
-      <h1>Balance</h1>
-      <p id="balance-amount">Balance: 0.00 coins</p>
-      <button onclick="showScreen('deposit')">Deposit</button>
-      <button onclick="showScreen('withdraw')">Withdraw</button>
-      <button onclick="showScreen('menu')">Back</button>
-    </div>
-
-    <!-- Deposit Screen -->
-    <div id="deposit-screen" class="hidden">
-      <h1>Deposit</h1>
-      <p id="deposit-message"></p>
-      <input type="password" id="password" placeholder="Enter Password">
-      <input type="number" id="deposit-amount" placeholder="Enter Amount" class="hidden">
-      <button onclick="handleDeposit()">Submit</button>
-      <button onclick="showScreen('balance')">Back</button>
-    </div>
-
-    <!-- Withdraw Screen -->
-    <div id="withdraw-screen" class="hidden">
-      <h1>Withdraw</h1>
-      <p id="withdraw-message"></p>
-      <input type="number" id="withdraw-amount" placeholder="Enter Amount">
-      <button onclick="handleWithdraw()">Submit</button>
-      <button onclick="showScreen('balance')">Back</button>
-    </div>
-
-    <!-- Guess the Cup Screen -->
-    <div id="guess-screen" class="hidden">
-      <h1>Guess the Cup</h1>
-      <p id="guess-balance">Balance: 0.00 coins</p>
-      <div class="bet-buttons">
-        <button onclick="setBet(1)">Bet 1</button>
-        <button onclick="setBet(5)">Bet 5</button>
-        <button onclick="setBet(10)">Bet 10</button>
-        <button onclick="setBet(20)">Bet 20</button>
-        <button onclick="setBet(50)">Bet 50</button>
+    <div class="content">
+      <div class="menu-options">
+        <button class="btn" id="play-button">🎮 PLAY GAME</button>
+        <button class="btn btn-secondary" id="balance-button">💰 BALANCE</button>
       </div>
-      <div class="cups">
-        <div class="cup" onclick="guessCup(0)"></div>
-        <div class="cup" onclick="guessCup(1)"></div>
-        <div class="cup" onclick="guessCup(2)"></div>
-      </div>
-      <p id="result"></p>
-      <button onclick="showScreen('menu')">Back to Menu</button>
-    </div>
-
-    <!-- Slot Machine Screen -->
-    <div id="slot-screen" class="hidden">
-      <h1>Slot Machine</h1>
-      <p id="slot-balance">Balance: 0.00 coins</p>
-      <div class="bet-buttons">
-        <button onclick="setSlotBet(1)">Bet 1</button>
-        <button onclick="setSlotBet(5)">Bet 5</button>
-        <button onclick="setSlotBet(10)">Bet 10</button>
-        <button onclick="setSlotBet(20)">Bet 20</button>
-        <button onclick="setSlotBet(50)">Bet 50</button>
-      </div>
-      <div class="slot-machine">
-        <div class="reel" id="reel1">
-          <span>🍒</span>
+      
+      <div class="daily-bonus">
+        <h3>DAILY BONUS</h3>
+        <p>Claim your free coins!</p>
+        <div class="streak-display" id="streak-display">
+          <div class="streak-day">1</div>
+          <div class="streak-day">2</div>
+          <div class="streak-day">3</div>
+          <div class="streak-day">4</div>
+          <div class="streak-day">5</div>
         </div>
-        <div class="reel" id="reel2">
-          <span>🍒</span>
-        </div>
-        <div class="reel" id="reel3">
-          <span>🍒</span>
-        </div>
+        <button class="btn btn-success" id="claim-bonus-button">CLAIM 5 🪙</button>
       </div>
-      <p id="slot-result"></p>
-      <button onclick="spinSlot()">Spin</button>
-      <button onclick="showScreen('menu')">Back to Menu</button>
-    </div>
-
-    <!-- Number Guessing Screen -->
-    <div id="number-guess-screen" class="hidden">
-      <h1>Number Guessing</h1>
-      <p id="number-guess-balance">Balance: 0.00 coins</p>
-      <div class="bet-buttons">
-        <button onclick="setNumberGuessBet(1)">Bet 1</button>
-        <button onclick="setNumberGuessBet(5)">Bet 5</button>
-        <button onclick="setNumberGuessBet(10)">Bet 10</button>
-        <button onclick="setNumberGuessBet(20)">Bet 20</button>
-        <button onclick="setNumberGuessBet(50)">Bet 50</button>
-      </div>
-      <p id="current-number">Current Number: <span id="current-number-value">-</span></p>
-      <p id="higher-lower-odds">Higher/Lower Odds: <span id="higher-odds">-</span> / <span id="lower-odds">-</span></p>
-      <button onclick="guessHigher()">Higher</button>
-      <button onclick="guessLower()">Lower</button>
-      <button onclick="guessOdd()">Odd</button>
-      <button onclick="guessEven()">Even</button>
-      <input type="number" id="exact-number-guess" placeholder="Guess Exact Number (1-100)">
-      <button onclick="guessExactNumber()">Guess Exact</button>
-      <p id="number-guess-result"></p>
-      <div class="odds-info">
-        <p><strong>Odds:</strong></p>
-        <p>Higher/Lower: Dynamic (Minimum: 1.01)</p>
-        <p>Odd/Even: 1.80x</p>
-        <p>Exact Number: 90x</p>
-      </div>
-      <button onclick="showScreen('menu')">Back to Menu</button>
-    </div>
-
-    <!-- Bonus Screen -->
-    <div id="bonus-screen" class="hidden">
-      <h1>Bonus</h1>
-      <p id="bonus-amount">Bonus: 0.00 coins</p>
-      <button onclick="claimBonus()">Claim Bonus</button>
-      <button onclick="showScreen('menu')">Back</button>
-    </div>
-
-    <!-- Marble Racing Screen -->
-    <div id="marble-racing-screen" class="hidden">
-      <h1>Marble Racing</h1>
-      <p id="marble-racing-balance">Balance: 0.00 coins</p>
-      <div class="bet-buttons">
-        <button onclick="setMarbleBet(1)">Bet 1</button>
-        <button onclick="setMarbleBet(5)">Bet 5</button>
-        <button onclick="setMarbleBet(10)">Bet 10</button>
-        <button onclick="setMarbleBet(20)">Bet 20</button>
-        <button onclick="setMarbleBet(50)">Bet 50</button>
-      </div>
-      <div class="marble-selection">
-        <button onclick="selectMarble('red')">Red</button>
-        <button onclick="selectMarble('blue')">Blue</button>
-        <button onclick="selectMarble('yellow')">Yellow</button>
-        <button onclick="selectMarble('green')">Green</button>
-      </div>
-      <div class="race-track">
-        <div class="marble red" id="red-marble"></div>
-        <div class="marble blue" id="blue-marble"></div>
-        <div class="marble yellow" id="yellow-marble"></div>
-        <div class="marble green" id="green-marble"></div>
-        <div class="finish-line"></div>
-      </div>
-      <p id="marble-racing-result"></p>
-      <button onclick="startMarbleRace()">Start Race</button>
-      <button onclick="showScreen('menu')">Back to Menu</button>
     </div>
   </div>
 
-  <!-- Popup for Results -->
-  <div id="popup" class="popup hidden">
-    <p id="popup-message"></p>
-    <button onclick="closePopup()">Close</button>
+  <!-- Game Screen -->
+  <div class="game-container hidden" id="game-screen">
+    <div class="header">
+      <h1>GUESS THE NUMBER</h1>
+      <div class="balance-display" id="game-balance">10.00 🪙</div>
+    </div>
+    <div class="content">
+      <div class="current-number">
+        <div class="current-number-label">CURRENT NUMBER</div>
+        <div class="current-number-value" id="current-number">-</div>
+        <div class="result-text" id="result-text"></div>
+      </div>
+      
+      <div class="bet-options">
+        <div class="bet-option" data-bet="1">1</div>
+        <div class="bet-option" data-bet="5">5</div>
+        <div class="bet-option" data-bet="10">10</div>
+        <div class="bet-option" data-bet="20">20</div>
+        <div class="bet-option" data-bet="50">50</div>
+      </div>
+      
+      <div style="text-align: center; margin: 10px 0; font-weight: 600;">
+        Current bet: <span id="current-bet">0</span> 🪙
+      </div>
+      
+      <div class="guess-options">
+        <div class="guess-option" id="higher-btn">HIGHER (<span id="higher-odds">1.01</span>x)</div>
+        <div class="guess-option" id="lower-btn">LOWER (<span id="lower-odds">1.01</span>x)</div>
+        <div class="guess-option" id="odd-btn">ODD (1.9x)</div>
+        <div class="guess-option" id="even-btn">EVEN (1.9x)</div>
+      </div>
+      
+      <div class="equal-guess-container">
+        <input type="number" id="equal-guess-input" placeholder="Guess equal number (95x)" min="1" max="100">
+        <button class="btn btn-success" id="equal-guess-btn">GUESS EQUAL (95x)</button>
+      </div>
+      
+      <button class="btn btn-secondary" id="back-to-menu-btn">BACK TO MENU</button>
+    </div>
   </div>
-  <div id="overlay" class="overlay hidden"></div>
+
+  <!-- Balance Screen -->
+  <div class="game-container hidden" id="balance-screen">
+    <div class="header">
+      <h1>BALANCE</h1>
+      <div class="balance-display" id="balance-amount">10.00 🪙</div>
+    </div>
+    <div class="content">
+      <div class="tab-buttons">
+        <div class="tab-button active" data-tab="deposit-tab">DEPOSIT</div>
+        <div class="tab-button" data-tab="withdraw-tab">WITHDRAW</div>
+        <div class="tab-button" data-tab="wager-tab">WAGER</div>
+      </div>
+      
+      <div id="deposit-tab" class="tab-content active">
+        <div class="balance-form">
+          <input type="password" id="password-input" placeholder="Enter password">
+          <input type="number" id="deposit-amount" placeholder="Enter amount">
+          <button class="btn" id="deposit-btn">DEPOSIT</button>
+        </div>
+      </div>
+      
+      <div id="withdraw-tab" class="tab-content">
+        <div class="balance-form">
+          <input type="number" id="withdraw-amount" placeholder="Enter amount">
+          <button class="btn btn-success" id="withdraw-btn">WITHDRAW</button>
+          <div id="withdraw-message" class="result-text"></div>
+        </div>
+      </div>
+      
+      <div id="wager-tab" class="tab-content">
+        <div class="wager-history" id="wager-history">
+          <!-- Wager history will be added here -->
+        </div>
+      </div>
+      
+      <button class="btn btn-secondary" style="margin-top: 20px;" id="balance-back-btn">BACK TO MENU</button>
+    </div>
+  </div>
 
   <script>
-    // Game State
-    let balance = parseFloat(localStorage.getItem("balance")) || 0.00;
-    let bonus = parseFloat(localStorage.getItem("bonus")) || 0.00;
-    let bet = 0;
-    let slotBet = 0;
-    let numberGuessBet = 0;
-    let marbleBet = 0;
-    let selectedMarble = null;
-    let currentNumber = Math.floor(Math.random() * 100) + 1; // Random number between 1 and 100
+    // Game state
+    let balance = parseFloat(localStorage.getItem('balance')) || 10.00;
+    let currentNumber = Math.floor(Math.random() * 100) + 1;
+    let currentBet = 0;
     const password = "11273";
-    const symbols = ["🍒", "🍋", "🍊", "🍇", "🔔", "⭐"]; // Slot machine symbols
-
-    // Marble Racing State
-    let marbles = [
-      { id: "red-marble", color: "red", position: 0 },
-      { id: "blue-marble", color: "blue", position: 0 },
-      { id: "yellow-marble", color: "yellow", position: 0 },
-      { id: "green-marble", color: "green", position: 0 },
-    ];
-    let raceInterval = null;
-
-    // DOM Elements
-    const mainMenu = document.getElementById("main-menu");
-    const balanceScreen = document.getElementById("balance-screen");
-    const depositScreen = document.getElementById("deposit-screen");
-    const withdrawScreen = document.getElementById("withdraw-screen");
-    const guessScreen = document.getElementById("guess-screen");
-    const slotScreen = document.getElementById("slot-screen");
-    const numberGuessScreen = document.getElementById("number-guess-screen");
-    const bonusScreen = document.getElementById("bonus-screen");
-    const marbleRacingScreen = document.getElementById("marble-racing-screen");
-
-    const balanceAmount = document.getElementById("balance-amount");
-    const guessBalance = document.getElementById("guess-balance");
-    const slotBalance = document.getElementById("slot-balance");
-    const numberGuessBalance = document.getElementById("number-guess-balance");
-    const marbleRacingBalance = document.getElementById("marble-racing-balance");
-    const result = document.getElementById("result");
-    const slotResult = document.getElementById("slot-result");
-    const numberGuessResult = document.getElementById("number-guess-result");
-    const marbleRacingResult = document.getElementById("marble-racing-result");
-    const depositMessage = document.getElementById("deposit-message");
-    const passwordInput = document.getElementById("password");
-    const depositAmountInput = document.getElementById("deposit-amount");
-    const withdrawAmountInput = document.getElementById("withdraw-amount");
-    const bonusAmount = document.getElementById("bonus-amount");
-    const currentNumberValue = document.getElementById("current-number-value");
-    const exactNumberGuess = document.getElementById("exact-number-guess");
-    const higherOdds = document.getElementById("higher-odds");
-    const lowerOdds = document.getElementById("lower-odds");
-
-    const popup = document.getElementById("popup");
-    const overlay = document.getElementById("overlay");
-    const popupMessage = document.getElementById("popup-message");
-
-    const reel1 = document.getElementById("reel1").querySelector("span");
-    const reel2 = document.getElementById("reel2").querySelector("span");
-    const reel3 = document.getElementById("reel3").querySelector("span");
-
-    // Save game state to localStorage
-    function saveGameState() {
-      localStorage.setItem("balance", balance.toFixed(2));
-      localStorage.setItem("bonus", bonus.toFixed(2));
+    let lastBonusDate = localStorage.getItem('lastBonusDate');
+    let streak = parseInt(localStorage.getItem('streak')) || 0;
+    let dailyBonusClaimed = lastBonusDate === new Date().toDateString();
+    let dailyBonusAmount = Math.min(5 + streak * 2, 25);
+    let totalWagered = parseFloat(localStorage.getItem('totalWagered')) || 0;
+    let wagerHistory = JSON.parse(localStorage.getItem('wagerHistory')) || [];
+    
+    // Calculate dynamic odds with 5% house edge
+    function calculateOdds() {
+      const higherProbability = (100 - currentNumber) / 100;
+      const lowerProbability = (currentNumber - 1) / 100;
+      
+      // Apply 5% house edge (ROI -5%)
+      const higherOdds = Math.max((1 / higherProbability) * 0.95, 1.01).toFixed(2);
+      const lowerOdds = Math.max((1 / lowerProbability) * 0.95, 1.01).toFixed(2);
+      
+      return { higherOdds, lowerOdds };
     }
-
+    
+    // Update odds display
+    function updateOddsDisplay() {
+      const { higherOdds, lowerOdds } = calculateOdds();
+      document.getElementById('higher-odds').textContent = higherOdds;
+      document.getElementById('lower-odds').textContent = lowerOdds;
+    }
+    
+    // DOM elements
+    const mainMenu = document.getElementById('main-menu');
+    const gameScreen = document.getElementById('game-screen');
+    const balanceScreen = document.getElementById('balance-screen');
+    const currentNumberElement = document.getElementById('current-number');
+    const resultText = document.getElementById('result-text');
+    const withdrawMessage = document.getElementById('withdraw-message');
+    const wagerHistoryElement = document.getElementById('wager-history');
+    
+    // Initialize the game
+    function initGame() {
+      updateUI();
+      updateOddsDisplay();
+      setupEventListeners();
+      checkNewDay();
+      renderWagerHistory();
+    }
+    
+    // Update all UI elements
+    function updateUI() {
+      // Update balance displays
+      document.getElementById('main-balance').textContent = balance.toFixed(2) + ' 🪙';
+      document.getElementById('game-balance').textContent = balance.toFixed(2) + ' 🪙';
+      document.getElementById('balance-amount').textContent = balance.toFixed(2) + ' 🪙';
+      
+      // Update current number
+      currentNumberElement.textContent = currentNumber;
+      
+      // Update current bet
+      document.getElementById('current-bet').textContent = currentBet;
+      
+      // Update streak display
+      const streakDays = document.querySelectorAll('.streak-day');
+      streakDays.forEach((day, index) => {
+        if (streak >= index + 1) {
+          day.classList.add('active');
+        } else {
+          day.classList.remove('active');
+        }
+      });
+      
+      // Update daily bonus button
+      const bonusBtn = document.getElementById('claim-bonus-button');
+      bonusBtn.textContent = `CLAIM ${dailyBonusAmount} 🪙`;
+      bonusBtn.disabled = dailyBonusClaimed;
+    }
+    
+    // Set up all event listeners
+    function setupEventListeners() {
+      // Menu buttons
+      document.getElementById('play-button').addEventListener('click', () => showScreen('game'));
+      document.getElementById('balance-button').addEventListener('click', () => showScreen('balance'));
+      document.getElementById('claim-bonus-button').addEventListener('click', claimDailyBonus);
+      
+      // Game screen buttons
+      document.getElementById('back-to-menu-btn').addEventListener('click', () => showScreen('menu'));
+      
+      // Bet options
+      document.querySelectorAll('.bet-option').forEach(option => {
+        option.addEventListener('click', function() {
+          const betAmount = parseInt(this.getAttribute('data-bet'));
+          setBet(betAmount);
+        });
+      });
+      
+      // Guess options
+      document.getElementById('higher-btn').addEventListener('click', guessHigher);
+      document.getElementById('lower-btn').addEventListener('click', guessLower);
+      document.getElementById('odd-btn').addEventListener('click', guessOdd);
+      document.getElementById('even-btn').addEventListener('click', guessEven);
+      document.getElementById('equal-guess-btn').addEventListener('click', guessEqual);
+      
+      // Balance screen buttons
+      document.getElementById('balance-back-btn').addEventListener('click', () => showScreen('menu'));
+      document.getElementById('deposit-btn').addEventListener('click', handleDeposit);
+      document.getElementById('withdraw-btn').addEventListener('click', handleWithdraw);
+      
+      // Tab buttons
+      document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', function() {
+          const tabId = this.getAttribute('data-tab');
+          switchTab(tabId);
+        });
+      });
+    }
+    
     // Show a specific screen
     function showScreen(screen) {
-      mainMenu.classList.add("hidden");
-      balanceScreen.classList.add("hidden");
-      depositScreen.classList.add("hidden");
-      withdrawScreen.classList.add("hidden");
-      guessScreen.classList.add("hidden");
-      slotScreen.classList.add("hidden");
-      numberGuessScreen.classList.add("hidden");
-      bonusScreen.classList.add("hidden");
-      marbleRacingScreen.classList.add("hidden");
-
-      if (screen === "menu") mainMenu.classList.remove("hidden");
-      else if (screen === "balance") {
-        balanceAmount.textContent = `Balance: ${balance.toFixed(2)} coins`;
-        balanceScreen.classList.remove("hidden");
-      } else if (screen === "deposit") {
-        depositScreen.classList.remove("hidden");
-        passwordInput.classList.remove("hidden");
-        depositAmountInput.classList.add("hidden");
-        depositMessage.textContent = "";
-        passwordInput.value = ""; // Clear password input
-        depositAmountInput.value = ""; // Clear deposit amount input
-      } else if (screen === "withdraw") {
-        withdrawScreen.classList.remove("hidden");
-        withdrawMessage.textContent = "";
-        withdrawAmountInput.value = ""; // Clear withdraw amount input
-      } else if (screen === "guess") {
-        guessBalance.textContent = `Balance: ${balance.toFixed(2)} coins`;
-        guessScreen.classList.remove("hidden");
-        startGame();
-      } else if (screen === "slot") {
-        slotBalance.textContent = `Balance: ${balance.toFixed(2)} coins`;
-        slotScreen.classList.remove("hidden");
-      } else if (screen === "number-guess") {
-        numberGuessBalance.textContent = `Balance: ${balance.toFixed(2)} coins`;
-        currentNumberValue.textContent = currentNumber;
-        updateHigherLowerOdds(); // Update odds when screen is shown
-        numberGuessScreen.classList.remove("hidden");
-      } else if (screen === "bonus") {
-        bonusAmount.textContent = `Bonus: ${bonus.toFixed(2)} coins`;
-        bonusScreen.classList.remove("hidden");
-      } else if (screen === "marble-racing") {
-        marbleRacingBalance.textContent = `Balance: ${balance.toFixed(2)} coins`;
-        marbleRacingScreen.classList.remove("hidden");
-        resetMarbleRace(); // Reset the race when screen is shown
+      mainMenu.classList.add('hidden');
+      gameScreen.classList.add('hidden');
+      balanceScreen.classList.add('hidden');
+      
+      switch(screen) {
+        case 'menu':
+          mainMenu.classList.remove('hidden');
+          break;
+        case 'game':
+          gameScreen.classList.remove('hidden');
+          updateOddsDisplay();
+          break;
+        case 'balance':
+          balanceScreen.classList.remove('hidden');
+          switchTab('deposit-tab');
+          break;
       }
+      
+      updateUI();
     }
-
-    // Handle Deposit
-    function handleDeposit() {
-      if (!passwordInput.classList.contains("hidden")) {
-        // Password entered, now check it
-        if (passwordInput.value === password) {
-          passwordInput.classList.add("hidden");
-          depositAmountInput.classList.remove("hidden");
-          depositMessage.textContent = "Enter deposit amount.";
-          depositMessage.style.color = "white";
-        } else {
-          depositMessage.textContent = "Invalid Password!";
-          depositMessage.style.color = "red";
-        }
-      } else {
-        // Amount entered
-        const amount = parseFloat(depositAmountInput.value);
-        if (amount > 0) {
-          balance += amount;
-          balanceAmount.textContent = `Balance: ${balance.toFixed(2)} coins`;
-          depositMessage.textContent = "Deposit successful!";
-          depositMessage.style.color = "green";
-          // Reset inputs
-          passwordInput.value = "";
-          depositAmountInput.value = "";
-          passwordInput.classList.remove("hidden");
-          depositAmountInput.classList.add("hidden");
-          saveGameState(); // Save game state
-        } else {
-          depositMessage.textContent = "Invalid Amount!";
-          depositMessage.style.color = "red";
-        }
-      }
+    
+    // Switch between tabs
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      document.querySelector(`.tab-button[data-tab="${tabId}"]`).classList.add('active');
+      document.getElementById(tabId).classList.add('active');
     }
-
-    // Handle Withdraw
-    function handleWithdraw() {
-      const amount = parseFloat(withdrawAmountInput.value);
-      if (amount > 0 && amount <= balance) {
-        balance -= amount;
-        balanceAmount.textContent = `Balance: ${balance.toFixed(2)} coins`;
-        withdrawMessage.textContent = `Withdrawal of ${amount.toFixed(2)} coins successful!`;
-        withdrawMessage.style.color = "green";
-        saveGameState(); // Save game state
-      } else {
-        withdrawMessage.textContent = "Invalid Amount or Insufficient Balance!";
-        withdrawMessage.style.color = "red";
-      }
-    }
-
-    // Set Bet Amount for Guess the Cup
+    
+    // Set bet amount
     function setBet(amount) {
       if (balance >= amount) {
-        bet = amount;
-        result.textContent = `Bet set to ${bet} coins. Click a cup to guess!`;
-      } else {
-        result.textContent = "Not enough coins to place this bet!";
-      }
-    }
-
-    // Start Guess the Cup Game
-    function startGame() {
-      marblePosition = Math.floor(Math.random() * 3); // Randomize ball position
-      result.textContent = "";
-      document.querySelectorAll(".cup").forEach(cup => cup.innerHTML = ""); // Clear marbles
-    }
-
-    // Handle Cup Guess
-    function guessCup(index) {
-      if (bet === 0) {
-        result.textContent = "Please set a bet first!";
-        return;
-      }
-      if (balance < bet) {
-        result.textContent = "Not enough coins!";
-        return;
-      }
-
-      // Deduct the bet amount from balance
-      balance -= bet;
-      guessBalance.textContent = `Balance: ${balance.toFixed(2)} coins`;
-
-      // Reveal the ball under the correct cup
-      const cups = document.querySelectorAll(".cup");
-      const marble = document.createElement("div");
-      marble.className = "marble-ball";
-      cups[marblePosition].appendChild(marble);
-
-      if (index === marblePosition) {
-        // If the guess is correct, add the bet amount back plus the same amount as profit
-        const winnings = bet * 2; // Return bet + profit
-        balance += winnings;
-        result.textContent = `You won ${winnings} coins!`;
-        bonus += bet * 0.05; // Add 5% to bonus
-      } else {
-        // If the guess is incorrect, the bet is lost
-        result.textContent = `You lost ${bet} coins!`;
-      }
-
-      // Update balance immediately
-      guessBalance.textContent = `Balance: ${balance.toFixed(2)} coins`;
-      saveGameState(); // Save game state
-
-      // Start a new game after 2 seconds
-      setTimeout(() => {
-        startGame();
-      }, 2000);
-    }
-
-    // Set Bet Amount for Slot Machine
-    function setSlotBet(amount) {
-      if (balance >= amount) {
-        slotBet = amount;
-        slotResult.textContent = `Bet set to ${slotBet} coins. Click Spin to play!`;
-      } else {
-        slotResult.textContent = "Not enough coins to place this bet!";
-      }
-    }
-
-    // Spin Slot Machine
-    function spinSlot() {
-      if (slotBet === 0) {
-        slotResult.textContent = "Please set a bet first!";
-        return;
-      }
-      if (balance < slotBet) {
-        slotResult.textContent = "Not enough coins!";
-        return;
-      }
-
-      // Deduct the bet amount from balance
-      balance -= slotBet;
-      slotBalance.textContent = `Balance: ${balance.toFixed(2)} coins`;
-
-      // Spin the reels
-      const spin1 = Math.floor(Math.random() * symbols.length);
-      const spin2 = Math.floor(Math.random() * symbols.length);
-      const spin3 = Math.floor(Math.random() * symbols.length);
-
-      // Animate the reels
-      animateReel(reel1, spin1, () => {
-        animateReel(reel2, spin2, () => {
-          animateReel(reel3, spin3, () => {
-            // Check for a win after all reels stop
-            if (spin1 === spin2 && spin2 === spin3) {
-              const winnings = slotBet * 5; // 5x payout for matching all 3 reels
-              balance += winnings;
-              slotResult.textContent = `You won ${winnings} coins!`;
-            } else {
-              slotResult.textContent = `You lost ${slotBet} coins!`;
-            }
-
-            // Update balance immediately
-            slotBalance.textContent = `Balance: ${balance.toFixed(2)} coins`;
-            saveGameState(); // Save game state
-          });
-        });
-      });
-    }
-
-    // Animate a single reel
-    function animateReel(reel, stopPosition, callback) {
-      const spins = 10; // Number of spins before stopping
-      let currentSpin = 0;
-
-      const spinInterval = setInterval(() => {
-        reel.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-        currentSpin++;
-
-        if (currentSpin >= spins) {
-          clearInterval(spinInterval);
-          reel.textContent = symbols[stopPosition];
-          if (callback) callback();
-        }
-      }, 100); // Spin every 100ms
-    }
-
-    // Set Bet Amount for Number Guessing
-    function setNumberGuessBet(amount) {
-      if (balance >= amount) {
-        numberGuessBet = amount;
-        numberGuessResult.textContent = `Bet set to ${numberGuessBet} coins. Make your guess!`;
-      } else {
-        numberGuessResult.textContent = "Not enough coins to place this bet!";
-      }
-    }
-
-    // Update Higher/Lower Odds
-    function updateHigherLowerOdds() {
-      const higherProbability = (100 - currentNumber) / 100; // Probability of higher
-      const lowerProbability = (currentNumber - 1) / 100; // Probability of lower
-
-      // Ensure ROI is between -10% and -20%
-      const higherOddsValue = Math.max((1 / higherProbability) * 0.85, 1.01); // Minimum odds: 1.01
-      const lowerOddsValue = Math.max((1 / lowerProbability) * 0.85, 1.01); // Minimum odds: 1.01
-
-      higherOdds.textContent = higherOddsValue.toFixed(2);
-      lowerOdds.textContent = lowerOddsValue.toFixed(2);
-    }
-
-    // Show Popup
-    function showPopup(message) {
-      popupMessage.textContent = message;
-      popup.classList.remove("hidden");
-      overlay.classList.remove("hidden");
-    }
-
-    // Close Popup
-    function closePopup() {
-      popup.classList.add("hidden");
-      overlay.classList.add("hidden");
-    }
-
-    // Spin to New Number
-    function spinToNewNumber(newNumber, callback) {
-      let spins = 0;
-      const spinInterval = setInterval(() => {
-        currentNumberValue.textContent = Math.floor(Math.random() * 100) + 1;
-        spins++;
-        if (spins >= 10) {
-          clearInterval(spinInterval);
-          currentNumberValue.textContent = newNumber;
-          if (callback) callback();
-        }
-      }, 100); // Spin every 100ms
-    }
-
-    // Guess Higher
-    function guessHigher() {
-      if (numberGuessBet === 0) {
-        numberGuessResult.textContent = "Please set a bet first!";
-        return;
-      }
-      if (balance < numberGuessBet) {
-        numberGuessResult.textContent = "Not enough coins!";
-        return;
-      }
-
-      // Deduct the bet amount from balance
-      balance -= numberGuessBet;
-      numberGuessBalance.textContent = `Balance: ${balance.toFixed(2)} coins`;
-
-      // Generate a new random number
-      const newNumber = Math.floor(Math.random() * 100) + 1;
-
-      // Spin to new number
-      spinToNewNumber(newNumber, () => {
-        // Check if the guess is correct
-        if (newNumber > currentNumber) {
-          const higherOddsValue = parseFloat(higherOdds.textContent);
-          const winnings = numberGuessBet * higherOddsValue; // Dynamic payout
-          balance += winnings;
-          showPopup(`You won ${winnings.toFixed(2)} coins! The new number is ${newNumber}.`);
-        } else {
-          showPopup(`You lost ${numberGuessBet} coins! The new number is ${newNumber}.`);
-        }
-
-        // Update the current number
-        currentNumber = newNumber;
-        updateHigherLowerOdds(); // Update odds for the new number
-
-        // Update balance immediately
-        numberGuessBalance.textContent = `Balance: ${balance.toFixed(2)} coins`;
-        saveGameState(); // Save game state
-      });
-    }
-
-    // Guess Lower
-    function guessLower() {
-      if (numberGuessBet === 0) {
-        numberGuessResult.textContent = "Please set a bet first!";
-        return;
-      }
-      if (balance < numberGuessBet) {
-        numberGuessResult.textContent = "Not enough coins!";
-        return;
-      }
-
-      // Deduct the bet amount from balance
-      balance -= numberGuessBet;
-      numberGuessBalance.textContent = `Balance: ${balance.toFixed(2)} coins`;
-
-      // Generate a new random number
-      const newNumber = Math.floor(Math.random() * 100) + 1;
-
-      // Spin to new number
-      spinToNewNumber(newNumber, () => {
-        // Check if the guess is correct
-        if (newNumber < currentNumber) {
-          const lowerOddsValue = parseFloat(lowerOdds.textContent);
-          const winnings = numberGuessBet * lowerOddsValue; // Dynamic payout
-          balance += winnings;
-          showPopup(`You won ${winnings.toFixed(2)} coins! The new number is ${newNumber}.`);
-        } else {
-          showPopup(`You lost ${numberGuessBet} coins! The new number is ${newNumber}.`);
-        }
-
-        // Update the current number
-        currentNumber = newNumber;
-        updateHigherLowerOdds(); // Update odds for the new number
-
-        // Update balance immediately
-        numberGuessBalance.textContent = `Balance: ${balance.toFixed(2)} coins`;
-        saveGameState(); // Save game state
-      });
-    }
-
-    // Guess Odd
-    function guessOdd() {
-      if (numberGuessBet === 0) {
-        numberGuessResult.textContent = "Please set a bet first!";
-        return;
-      }
-      if (balance < numberGuessBet) {
-        numberGuessResult.textContent = "Not enough coins!";
-        return;
-      }
-
-      // Deduct the bet amount from balance
-      balance -= numberGuessBet;
-      numberGuessBalance.textContent = `Balance: ${balance.toFixed(2)} coins`;
-
-      // Generate a new random number
-      const newNumber = Math.floor(Math.random() * 100) + 1;
-
-      // Spin to new number
-      spinToNewNumber(newNumber, () => {
-        // Check if the guess is correct
-        if (newNumber % 2 === 1) {
-          const winnings = numberGuessBet * 1.8; // Fixed payout
-          balance += winnings;
-          showPopup(`You won ${winnings.toFixed(2)} coins! The number is ${newNumber} (Odd).`);
-        } else {
-          showPopup(`You lost ${numberGuessBet} coins! The number is ${newNumber} (Even).`);
-        }
-
-        // Update the current number
-        currentNumber = newNumber;
-        updateHigherLowerOdds(); // Update odds for the new number
-
-        // Update balance immediately
-        numberGuessBalance.textContent = `Balance: ${balance.toFixed(2)} coins`;
-        saveGameState(); // Save game state
-      });
-    }
-
-    // Guess Even
-    function guessEven() {
-      if (numberGuessBet === 0) {
-        numberGuessResult.textContent = "Please set a bet first!";
-        return;
-      }
-      if (balance < numberGuessBet) {
-        numberGuessResult.textContent = "Not enough coins!";
-        return;
-      }
-
-      // Deduct the bet amount from balance
-      balance -= numberGuessBet;
-      numberGuessBalance.textContent = `Balance: ${balance.toFixed(2)} coins`;
-
-      // Generate a new random number
-      const newNumber = Math.floor(Math.random() * 100) + 1;
-
-      // Spin to new number
-      spinToNewNumber(newNumber, () => {
-        // Check if the guess is correct
-        if (newNumber % 2 === 0) {
-          const winnings = numberGuessBet * 1.8; // Fixed payout
-          balance += winnings;
-          showPopup(`You won ${winnings.toFixed(2)} coins! The number is ${newNumber} (Even).`);
-        } else {
-          showPopup(`You lost ${numberGuessBet} coins! The number is ${newNumber} (Odd).`);
-        }
-
-        // Update the current number
-        currentNumber = newNumber;
-        updateHigherLowerOdds(); // Update odds for the new number
-
-        // Update balance immediately
-        numberGuessBalance.textContent = `Balance: ${balance.toFixed(2)} coins`;
-        saveGameState(); // Save game state
-      });
-    }
-
-    // Guess Exact Number
-    function guessExactNumber() {
-      if (numberGuessBet === 0) {
-        numberGuessResult.textContent = "Please set a bet first!";
-        return;
-      }
-      if (balance < numberGuessBet) {
-        numberGuessResult.textContent = "Not enough coins!";
-        return;
-      }
-
-      // Deduct the bet amount from balance
-      balance -= numberGuessBet;
-      numberGuessBalance.textContent = `Balance: ${balance.toFixed(2)} coins`;
-
-      // Get the player's guess
-      const guess = parseInt(exactNumberGuess.value);
-      if (isNaN(guess) || guess < 1 || guess > 100) {
-        numberGuessResult.textContent = "Please enter a valid number between 1 and 100!";
-        return;
-      }
-
-      // Generate a new random number
-      const newNumber = Math.floor(Math.random() * 100) + 1;
-
-      // Spin to new number
-      spinToNewNumber(newNumber, () => {
-        // Check if the guess is correct
-        if (guess === newNumber) {
-          const winnings = numberGuessBet * 90; // Fixed payout
-          balance += winnings;
-          showPopup(`You won ${winnings.toFixed(2)} coins! The number was ${newNumber}.`);
-        } else {
-          showPopup(`You lost ${numberGuessBet} coins! The number was ${newNumber}.`);
-        }
-
-        // Update balance immediately
-        numberGuessBalance.textContent = `Balance: ${balance.toFixed(2)} coins`;
-        saveGameState(); // Save game state
-      });
-    }
-
-    // Claim Bonus
-    function claimBonus() {
-      balance += bonus;
-      bonus = 0;
-      bonusAmount.textContent = `Bonus: ${bonus.toFixed(2)} coins`;
-      showScreen("menu");
-      saveGameState(); // Save game state
-    }
-
-    // Exit Game
-    function exitGame() {
-      saveGameState();
-      alert("Game exited. Your balance and bonus have been saved.");
-    }
-
-    // Marble Racing Functions
-    function setMarbleBet(amount) {
-      if (balance >= amount) {
-        marbleBet = amount;
-        marbleRacingResult.textContent = `Bet set to ${marbleBet} coins. Choose a marble!`;
-      } else {
-        marbleRacingResult.textContent = "Not enough coins to place this bet!";
-      }
-    }
-
-    function selectMarble(color) {
-      selectedMarble = color;
-      document.querySelectorAll(".marble-selection button").forEach(button => {
-        button.classList.remove("selected");
-      });
-      document.querySelector(`.marble-selection button[onclick="selectMarble('${color}')"]`).classList.add("selected");
-      marbleRacingResult.textContent = `You selected the ${color} marble!`;
-    }
-
-    function resetMarbleRace() {
-      marbles.forEach(marble => {
-        marble.position = 0;
-        document.getElementById(marble.id).style.left = "0px";
-      });
-      marbleRacingResult.textContent = "";
-      selectedMarble = null;
-      document.querySelectorAll(".marble-selection button").forEach(button => {
-        button.classList.remove("selected");
-      });
-    }
-
-    function startMarbleRace() {
-      if (marbleBet === 0) {
-        marbleRacingResult.textContent = "Please set a bet first!";
-        return;
-      }
-      if (balance < marbleBet) {
-        marbleRacingResult.textContent = "Not enough coins!";
-        return;
-      }
-      if (!selectedMarble) {
-        marbleRacingResult.textContent = "Please select a marble to bet on!";
-        return;
-      }
-
-      // Deduct the bet amount from balance
-      balance -= marbleBet;
-      marbleRacingBalance.textContent = `Balance: ${balance.toFixed(2)} coins`;
-
-      // Start the race
-      raceInterval = setInterval(() => {
-        marbles.forEach(marble => {
-          marble.position += Math.random() * 10; // Random movement
-          document.getElementById(marble.id).style.left = `${marble.position}px`;
-
-          // Check if the marble has crossed the finish line
-          if (marble.position >= 600) {
-            clearInterval(raceInterval);
-            endMarbleRace(marble);
+        currentBet = amount;
+        
+        // Highlight selected bet option
+        document.querySelectorAll('.bet-option').forEach(option => {
+          option.classList.remove('active');
+          if (parseInt(option.getAttribute('data-bet')) === amount) {
+            option.classList.add('active');
           }
         });
-      }, 50); // Update every 50ms
-    }
-
-    function endMarbleRace(winningMarble) {
-      if (winningMarble.color === selectedMarble) {
-        const winnings = marbleBet * 3; // 3x payout
-        balance += winnings;
-        marbleRacingResult.textContent = `You won ${winnings} coins! ${winningMarble.color} marble won!`;
+        
+        updateUI();
       } else {
-        marbleRacingResult.textContent = `You lost ${marbleBet} coins! ${winningMarble.color} marble won.`;
+        showResult('Not enough coins!', 'lose');
       }
-
-      // Update balance immediately
-      marbleRacingBalance.textContent = `Balance: ${balance.toFixed(2)} coins`;
-      saveGameState(); // Save game state
-
-      // Reset the race after 3 seconds
+    }
+    
+    // Spin animation for number change
+    function spinNumberAnimation(callback) {
+      currentNumberElement.classList.add('spinning');
+      
+      let spins = 0;
+      const spinInterval = setInterval(() => {
+        currentNumberElement.textContent = Math.floor(Math.random() * 100) + 1;
+        spins++;
+        
+        if (spins > 10) {
+          clearInterval(spinInterval);
+          currentNumberElement.classList.remove('spinning');
+          if (callback) callback();
+        }
+      }, 100);
+    }
+    
+    // Show result text
+    function showResult(message, type) {
+      resultText.textContent = message;
+      resultText.className = 'result-text';
+      resultText.classList.add(type + '-text');
+      
+      // Clear after 3 seconds
       setTimeout(() => {
-        resetMarbleRace();
+        resultText.textContent = '';
+        resultText.className = 'result-text';
       }, 3000);
     }
-
-    // Initialize
-    showScreen("menu");
+    
+    // Add to wager history
+    function addToWagerHistory(amount, type) {
+      const now = new Date();
+      const timeString = now.toLocaleTimeString();
+      
+      wagerHistory.unshift({
+        amount: amount,
+        type: type,
+        time: timeString
+      });
+      
+      // Keep only last 50 items
+      if (wagerHistory.length > 50) {
+        wagerHistory = wagerHistory.slice(0, 50);
+      }
+      
+      totalWagered += Math.abs(amount);
+      saveGameState();
+      renderWagerHistory();
+    }
+    
+    // Render wager history
+    function renderWagerHistory() {
+      wagerHistoryElement.innerHTML = '';
+      
+      wagerHistory.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'wager-item';
+        
+        const leftDiv = document.createElement('div');
+        leftDiv.textContent = item.time;
+        
+        const rightDiv = document.createElement('div');
+        rightDiv.className = `wager-amount wager-${item.type}`;
+        rightDiv.textContent = (item.type === 'positive' ? '+' : '-') + Math.abs(item.amount).toFixed(2) + ' 🪙';
+        
+        div.appendChild(leftDiv);
+        div.appendChild(rightDiv);
+        wagerHistoryElement.appendChild(div);
+      });
+    }
+    
+    // Guess higher
+    function guessHigher() {
+      if (currentBet === 0) {
+        showResult('Place a bet first!', 'lose');
+        return;
+      }
+      
+      if (balance < currentBet) {
+        showResult('Not enough coins!', 'lose');
+        return;
+      }
+      
+      // Deduct bet immediately
+      balance -= currentBet;
+      addToWagerHistory(-currentBet, 'negative');
+      updateUI();
+      
+      // Start spin animation
+      spinNumberAnimation(() => {
+        const newNumber = Math.floor(Math.random() * 100) + 1;
+        const won = newNumber > currentNumber;
+        const { higherOdds } = calculateOdds();
+        
+        if (won) {
+          const winnings = currentBet * parseFloat(higherOdds);
+          balance += winnings;
+          showResult(`+${winnings.toFixed(2)} 🪙 (${newNumber})`, 'win');
+          addToWagerHistory(winnings, 'positive');
+          createConfetti();
+        } else {
+          showResult(`-${currentBet.toFixed(2)} 🪙 (${newNumber})`, 'lose');
+        }
+        
+        currentNumber = newNumber;
+        updateOddsDisplay();
+        saveGameState();
+        updateUI();
+      });
+    }
+    
+    // Guess lower
+    function guessLower() {
+      if (currentBet === 0) {
+        showResult('Place a bet first!', 'lose');
+        return;
+      }
+      
+      if (balance < currentBet) {
+        showResult('Not enough coins!', 'lose');
+        return;
+      }
+      
+      // Deduct bet immediately
+      balance -= currentBet;
+      addToWagerHistory(-currentBet, 'negative');
+      updateUI();
+      
+      // Start spin animation
+      spinNumberAnimation(() => {
+        const newNumber = Math.floor(Math.random() * 100) + 1;
+        const won = newNumber < currentNumber;
+        const { lowerOdds } = calculateOdds();
+        
+        if (won) {
+          const winnings = currentBet * parseFloat(lowerOdds);
+          balance += winnings;
+          showResult(`+${winnings.toFixed(2)} 🪙 (${newNumber})`, 'win');
+          addToWagerHistory(winnings, 'positive');
+          createConfetti();
+        } else {
+          showResult(`-${currentBet.toFixed(2)} 🪙 (${newNumber})`, 'lose');
+        }
+        
+        currentNumber = newNumber;
+        updateOddsDisplay();
+        saveGameState();
+        updateUI();
+      });
+    }
+    
+    // Guess odd
+    function guessOdd() {
+      if (currentBet === 0) {
+        showResult('Place a bet first!', 'lose');
+        return;
+      }
+      
+      if (balance < currentBet) {
+        showResult('Not enough coins!', 'lose');
+        return;
+      }
+      
+      // Deduct bet immediately
+      balance -= currentBet;
+      addToWagerHistory(-currentBet, 'negative');
+      updateUI();
+      
+      // Start spin animation
+      spinNumberAnimation(() => {
+        const newNumber = Math.floor(Math.random() * 100) + 1;
+        const won = newNumber % 2 === 1;
+        
+        if (won) {
+          const winnings = currentBet * 1.9;
+          balance += winnings;
+          showResult(`+${winnings.toFixed(2)} 🪙 (${newNumber})`, 'win');
+          addToWagerHistory(winnings, 'positive');
+          createConfetti();
+        } else {
+          showResult(`-${currentBet.toFixed(2)} 🪙 (${newNumber})`, 'lose');
+        }
+        
+        currentNumber = newNumber;
+        updateOddsDisplay();
+        saveGameState();
+        updateUI();
+      });
+    }
+    
+    // Guess even
+    function guessEven() {
+      if (currentBet === 0) {
+        showResult('Place a bet first!', 'lose');
+        return;
+      }
+      
+      if (balance < currentBet) {
+        showResult('Not enough coins!', 'lose');
+        return;
+      }
+      
+      // Deduct bet immediately
+      balance -= currentBet;
+      addToWagerHistory(-currentBet, 'negative');
+      updateUI();
+      
+      // Start spin animation
+      spinNumberAnimation(() => {
+        const newNumber = Math.floor(Math.random() * 100) + 1;
+        const won = newNumber % 2 === 0;
+        
+        if (won) {
+          const winnings = currentBet * 1.9;
+          balance += winnings;
+          showResult(`+${winnings.toFixed(2)} 🪙 (${newNumber})`, 'win');
+          addToWagerHistory(winnings, 'positive');
+          createConfetti();
+        } else {
+          showResult(`-${currentBet.toFixed(2)} 🪙 (${newNumber})`, 'lose');
+        }
+        
+        currentNumber = newNumber;
+        updateOddsDisplay();
+        saveGameState();
+        updateUI();
+      });
+    }
+    
+    // Guess equal number
+    function guessEqual() {
+      const guess = parseInt(document.getElementById('equal-guess-input').value);
+      
+      if (currentBet === 0) {
+        showResult('Place a bet first!', 'lose');
+        return;
+      }
+      
+      if (balance < currentBet) {
+        showResult('Not enough coins!', 'lose');
+        return;
+      }
+      
+      if (isNaN(guess) || guess < 1 || guess > 100) {
+        showResult('Enter 1-100!', 'lose');
+        return;
+      }
+      
+      // Deduct bet immediately
+      balance -= currentBet;
+      addToWagerHistory(-currentBet, 'negative');
+      updateUI();
+      
+      // Start spin animation
+      spinNumberAnimation(() => {
+        const newNumber = Math.floor(Math.random() * 100) + 1;
+        const won = newNumber === guess;
+        
+        if (won) {
+          const winnings = currentBet * 95;
+          balance += winnings;
+          showResult(`JACKPOT +${winnings.toFixed(2)} 🪙 (${newNumber})`, 'win');
+          addToWagerHistory(winnings, 'positive');
+          createConfetti(true);
+        } else {
+          showResult(`-${currentBet.toFixed(2)} 🪙 (${newNumber})`, 'lose');
+        }
+        
+        currentNumber = newNumber;
+        document.getElementById('equal-guess-input').value = '';
+        updateOddsDisplay();
+        saveGameState();
+        updateUI();
+      });
+    }
+    
+    // Handle deposit
+    function handleDeposit() {
+      const passwordInput = document.getElementById('password-input');
+      const amountInput = document.getElementById('deposit-amount');
+      const amount = parseFloat(amountInput.value);
+      
+      if (passwordInput.value !== password) {
+        showResult('Wrong password!', 'lose');
+        return;
+      }
+      
+      if (isNaN(amount) || amount <= 0) {
+        showResult('Invalid amount!', 'lose');
+        return;
+      }
+      
+      balance += amount;
+      addToWagerHistory(amount, 'positive');
+      showResult(`Deposited +${amount.toFixed(2)} 🪙`, 'win');
+      passwordInput.value = '';
+      amountInput.value = '';
+      saveGameState();
+      updateUI();
+    }
+    
+    // Handle withdraw
+    function handleWithdraw() {
+      const amount = parseFloat(document.getElementById('withdraw-amount').value);
+      
+      if (isNaN(amount) || amount <= 0) {
+        withdrawMessage.textContent = 'Invalid amount!';
+        withdrawMessage.className = 'result-text lose-text';
+        return;
+      }
+      
+      if (amount > balance) {
+        withdrawMessage.textContent = 'Not enough coins!';
+        withdrawMessage.className = 'result-text lose-text';
+        return;
+      }
+      
+      // Check if user has wagered this amount
+      if (totalWagered < amount) {
+        const remaining = amount - totalWagered;
+        withdrawMessage.textContent = `Wager ${remaining.toFixed(2)} more first!`;
+        withdrawMessage.className = 'result-text lose-text';
+        return;
+      }
+      
+      balance -= amount;
+      withdrawMessage.textContent = `Withdrew ${amount.toFixed(2)} 🪙`;
+      withdrawMessage.className = 'result-text win-text';
+      document.getElementById('withdraw-amount').value = '';
+      saveGameState();
+      updateUI();
+      
+      // Clear message after 3 seconds
+      setTimeout(() => {
+        withdrawMessage.textContent = '';
+        withdrawMessage.className = 'result-text';
+      }, 3000);
+    }
+    
+    // Claim daily bonus
+    function claimDailyBonus() {
+      if (dailyBonusClaimed) {
+        showResult('Already claimed!', 'lose');
+        return;
+      }
+      
+      balance += dailyBonusAmount;
+      streak++;
+      dailyBonusClaimed = true;
+      lastBonusDate = new Date().toDateString();
+      addToWagerHistory(dailyBonusAmount, 'positive');
+      
+      showResult(`Bonus +${dailyBonusAmount} 🪙 (Day ${streak})`, 'win');
+      saveGameState();
+      updateUI();
+    }
+    
+    // Check if it's a new day for streak
+    function checkNewDay() {
+      const today = new Date().toDateString();
+      
+      if (lastBonusDate !== today) {
+        // Check if it's consecutive
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        
+        if (lastBonusDate !== yesterday.toDateString()) {
+          streak = 0; // Reset streak if not consecutive
+        }
+        
+        dailyBonusClaimed = false;
+        dailyBonusAmount = Math.min(5 + streak * 2, 25);
+      }
+      
+      updateUI();
+    }
+    
+    // Create confetti effect
+    function createConfetti(intense = false) {
+      const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+      const count = intense ? 150 : 50;
+      
+      for (let i = 0; i < count; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.left = `${Math.random() * 100}vw`;
+        confetti.style.top = '-10px';
+        confetti.style.width = `${Math.random() * 10 + 5}px`;
+        confetti.style.height = `${Math.random() * 10 + 5}px`;
+        
+        document.body.appendChild(confetti);
+        
+        const animationDuration = Math.random() * 3 + 2;
+        
+        confetti.animate([
+          { transform: `translate(0, 0) rotate(0deg)`, opacity: 1 },
+          { transform: `translate(${Math.random() * 200 - 100}px, ${window.innerHeight}px) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+        ], {
+          duration: animationDuration * 1000,
+          easing: "cubic-bezier(0.1, 0.8, 0.9, 1)"
+        });
+        
+        setTimeout(() => {
+          confetti.remove();
+        }, animationDuration * 1000);
+      }
+    }
+    
+    // Save game state
+    function saveGameState() {
+      localStorage.setItem('balance', balance.toFixed(2));
+      localStorage.setItem('lastBonusDate', lastBonusDate);
+      localStorage.setItem('streak', streak);
+      localStorage.setItem('totalWagered', totalWagered);
+      localStorage.setItem('wagerHistory', JSON.stringify(wagerHistory));
+    }
+    
+    // Initialize the game when page loads
+    window.addEventListener('DOMContentLoaded', initGame);
   </script>
 </body>
 </html>
